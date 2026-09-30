@@ -2,9 +2,12 @@
 
 # dependencies
 node_modules/
+.pnpm-store/
 
 # Expo
 .expo/
+.expo-shared/
+.eas/
 dist/
 web-build/
 expo-env.d.ts
@@ -13,28 +16,43 @@ expo-env.d.ts
 .kotlin/
 *.orig.*
 *.jks
+*.keystore
 *.p8
 *.p12
 *.key
 *.mobileprovision
+GoogleService-Info.plist
+google-services.json
+service-account*.json
+credentials.json
 
 # Metro
 .metro-health-check*
+.cache/
 
 # debug
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+pnpm-debug.log*
+firebase-debug.log*
+*.log
 
 # macOS
 .DS_Store
 *.pem
 
-# local env files
-.env*.local
+# local environment files and secrets (keep the committed template)
+.env
+.env.*
+!.env.example
 
 # typescript
 *.tsbuildinfo
+
+# test and lint output
+coverage/
+.eslintcache
 
 # generated native folders
 /ios
