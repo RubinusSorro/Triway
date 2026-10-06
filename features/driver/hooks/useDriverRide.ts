@@ -19,7 +19,7 @@ export function useDriverRide(isOnline: boolean) {
     }
 
     setIsLoading(true);
-    const unsubscribePending = rideService.subscribeToPendingRide((ride) => {
+    const unsubscribePending = rideService.subscribeToPendingRide(demoDriver.id, (ride) => {
       setPendingRide(ride);
       setIsLoading(false);
     });
@@ -53,5 +53,15 @@ export function useDriverRide(isOnline: boolean) {
     }
   };
 
-  return { pendingRide, activeRide, isLoading, error, acceptRide, updateStatus, driver: demoDriver };
+  const declineRide = async (rideId: string) => {
+    setError(null);
+    try {
+      return await rideService.declineRide(rideId, demoDriver.id);
+    } catch {
+      setError('Ride could not be declined.');
+      return null;
+    }
+  };
+
+  return { pendingRide, activeRide, isLoading, error, acceptRide, declineRide, updateStatus, driver: demoDriver };
 }

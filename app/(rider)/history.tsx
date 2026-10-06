@@ -1,6 +1,6 @@
 import { useFocusEffect, router } from 'expo-router';
 import { useCallback } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/common/EmptyState';
 import { Header } from '@/components/layout/Header';
@@ -24,13 +24,13 @@ export default function RiderHistoryScreen() {
 
   return (
     <Screen>
-      <Header eyebrow="History" title="Completed rides" subtitle="Trips appear here once the driver completes the shared ride." />
+      <Header eyebrow="History" title="Ride history" subtitle="Completed and cancelled trips from this demo session." />
       {isLoading ? <ActivityIndicator color={theme.colors.primary} /> : null}
 
       {!isLoading && rides.length === 0 ? (
         <EmptyState
-          title="No completed rides yet"
-          body="Complete the driver flow and return here to show the history requirement."
+          title="No rides yet"
+          body="Completed and cancelled trips will appear here after a ride ends."
           actionLabel="Book route"
           onAction={() => router.push('/(rider)/routes')}
         />
@@ -38,18 +38,20 @@ export default function RiderHistoryScreen() {
 
       <View style={styles.list}>
         {rides.map((ride) => (
-          <Card key={ride.id}>
+          <Pressable key={ride.id} accessibilityRole="button" accessibilityLabel={`View details for ${ride.routeName}`} onPress={() => router.push({ pathname: '/(rider)/details', params: { rideId: ride.id } })}>
+            <Card>
             <View style={styles.row}>
               <View style={styles.copy}>
-                <Text style={[styles.title, { color: theme.colors.text }]}>{ride.routeName}</Text>
+                <Text style={[styles.title, { color: theme.colors.text }]}>{ride.isReturnRide ? 'QUICK RETURN' : ride.routeName}</Text>
                 <Text style={[styles.detail, { color: theme.colors.mutedText }]}>
-                  {ride.pickup} to {ride.destination}
+                  {ride.isReturnRide ? `${ride.pickup} to ${ride.destination} to ${ride.pickup}` : `${ride.pickup} to ${ride.destination}`}
                 </Text>
-                <Text style={[styles.detail, { color: theme.colors.mutedText }]}>Cash fare PHP {ride.fare}</Text>
+                <Text style={[styles.detail, { color: theme.colors.mutedText }]}>{ride.status === 'cancelled' ? 'Cancelled ride' : `Cash fare PHP ${ride.isReturnRide ? ride.totalFare ?? ride.fare : ride.fare}`}</Text>
               </View>
               <StatusBadge status={ride.status} />
             </View>
-          </Card>
+            </Card>
+          </Pressable>
         ))}
       </View>
     </Screen>

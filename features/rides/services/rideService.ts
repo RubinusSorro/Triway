@@ -14,5 +14,7 @@ export const rideService = {
   listRideHistory: rideRepository.listRideHistory,
   listDriverRideHistory: rideRepository.listDriverRideHistory,
   acceptRide: rideRepository.acceptRide,
+  declineRide: rideRepository.declineRide,
+  cancelRide: rideRepository.cancelRide,
   updateRideStatus: rideRepository.updateRideStatus,
 };

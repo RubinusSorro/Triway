@@ -26,6 +26,12 @@ export const rideStatusMeta: Record<RideStatus, { label: string; riderCopy: stri
     driverCopy: 'Trip started. Drive safely.',
     color: colors.primary,
   },
+  waiting_return: {
+    label: 'Waiting for return',
+    riderCopy: 'Arrived at your destination. Your driver is waiting for your return trip.',
+    driverCopy: 'Waiting for the rider to return.',
+    color: colors.info,
+  },
   completed: {
     label: 'Completed',
     riderCopy: 'Ride completed. It is now in history.',
@@ -40,4 +46,4 @@ export const rideStatusMeta: Record<RideStatus, { label: string; riderCopy: stri
   },
 };
 
-export const rideStatusSteps: RideStatus[] = ['requested', 'accepted', 'arriving', 'ongoing', 'completed'];
+export const rideStatusSteps: RideStatus[] = ['requested', 'accepted', 'arriving', 'ongoing', 'waiting_return', 'completed'];

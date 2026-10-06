@@ -1,4 +1,4 @@
-import { CreateRideInput, Driver, RideStatus } from '@/features/rides/types/ride';
+import { CancellationActor, CancellationReason, CreateRideInput, Driver, RideStatus } from '@/features/rides/types/ride';
 import { RideRepository } from '@/features/rides/services/rideRepository';
 
 export const firebaseRideRepository: RideRepository = {
@@ -16,7 +16,7 @@ export const firebaseRideRepository: RideRepository = {
     return () => undefined;
   },
 
-  subscribeToPendingRide(listener) {
+  subscribeToPendingRide(_driverId, listener) {
     listener(null);
     return () => undefined;
   },
@@ -35,6 +35,14 @@ export const firebaseRideRepository: RideRepository = {
   },
 
   async acceptRide(_rideId: string, _driver: Driver) {
+    throw new Error('Firebase ride repository is not configured for this demo build.');
+  },
+
+  async declineRide(_rideId: string, _driverId: string) {
+    throw new Error('Firebase ride repository is not configured for this demo build.');
+  },
+
+  async cancelRide(_rideId: string, _cancelledBy: CancellationActor, _reason: CancellationReason) {
     throw new Error('Firebase ride repository is not configured for this demo build.');
   },
 

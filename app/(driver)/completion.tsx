@@ -37,9 +37,15 @@ export default function DriverCompletionScreen() {
       <Header eyebrow="Payment summary" title="Ride completed!" subtitle="This cash payment is simulated for the presentation." />
       <Card style={styles.card}>
         <Text style={[styles.detail, { color: theme.colors.text }]}>Rider: {ride.riderName ?? 'Rider'}</Text>
-        <Text style={[styles.detail, { color: theme.colors.text }]}>Pickup: {ride.pickup}</Text>
-        <Text style={[styles.detail, { color: theme.colors.text }]}>Destination: {ride.destination}</Text>
-        <Text style={[styles.detail, { color: theme.colors.text }]}>Fare: PHP {ride.fare}</Text>
+        {ride.isReturnRide ? (
+          <>
+            <Text style={[styles.detail, { color: theme.colors.text }]}>Outbound Fare: PHP {ride.outboundFare ?? ride.fare}</Text>
+            <Text style={[styles.detail, { color: theme.colors.text }]}>Return Fare: PHP {ride.returnFare ?? ride.fare}</Text>
+            <Text style={[styles.detail, { color: theme.colors.text }]}>Total: PHP {ride.totalFare ?? ride.fare}</Text>
+          </>
+        ) : (
+          <Text style={[styles.detail, { color: theme.colors.text }]}>Fare: PHP {ride.fare}</Text>
+        )}
         <Text style={[styles.detail, { color: theme.colors.text }]}>Payment method: Cash</Text>
         <Text style={[styles.detail, { color: theme.colors.mutedText }]}>Completed: {formatDate(ride.completedAt ?? ride.createdAt)}</Text>
       </Card>

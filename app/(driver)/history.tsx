@@ -1,6 +1,6 @@
 import { useFocusEffect, router } from 'expo-router';
 import { useCallback } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/common/EmptyState';
 import { Header } from '@/components/layout/Header';
@@ -43,18 +43,20 @@ export default function DriverHistoryScreen() {
       ) : null}
       <View style={styles.list}>
         {rides.map((ride) => (
-          <Card key={ride.id}>
+          <Pressable key={ride.id} accessibilityRole="button" accessibilityLabel={`View details for ${ride.riderName ?? 'rider'}`} onPress={() => router.push({ pathname: '/(driver)/details', params: { rideId: ride.id } })}>
+            <Card>
             <View style={styles.header}>
               <View style={styles.copy}>
                 <Text style={[styles.title, { color: theme.colors.text }]}>{ride.riderName ?? 'Rider'}</Text>
-                <Text style={[styles.route, { color: theme.colors.mutedText }]}>{ride.pickup} to {ride.destination}</Text>
+                <Text style={[styles.route, { color: theme.colors.mutedText }]}>{ride.isReturnRide ? `${ride.pickup} to ${ride.destination} to ${ride.pickup}` : `${ride.pickup} to ${ride.destination}`}</Text>
               </View>
               <StatusBadge status={ride.status} />
             </View>
-            <Text style={[styles.detail, { color: theme.colors.text }]}>Fare: PHP {ride.fare}</Text>
-            <Text style={[styles.detail, { color: theme.colors.text }]}>Payment: {paymentLabel(ride.paymentMethod)}</Text>
-            <Text style={[styles.detail, { color: theme.colors.mutedText }]}>Date: {formatDate(ride.completedAt ?? ride.createdAt)}</Text>
-          </Card>
+            <Text style={[styles.detail, { color: theme.colors.text }]}>Fare: PHP {ride.isReturnRide ? ride.totalFare ?? ride.fare : ride.fare}</Text>
+            <Text style={[styles.detail, { color: theme.colors.text }]}>Payment: {ride.status === 'cancelled' ? 'Not charged' : paymentLabel(ride.paymentMethod)}</Text>
+            <Text style={[styles.detail, { color: theme.colors.mutedText }]}>Date: {formatDate(ride.completedAt ?? ride.cancelledAt ?? ride.createdAt)}</Text>
+            </Card>
+          </Pressable>
         ))}
       </View>
     </Screen>

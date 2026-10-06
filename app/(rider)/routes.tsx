@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
@@ -13,10 +13,11 @@ import { useRoutes } from '@/features/routes/hooks/useRoutes';
 import { TriwayRoute } from '@/features/routes/types/route';
 
 export default function RiderRoutesScreen() {
+  const params = useLocalSearchParams<{ pickup?: string; destination?: string }>();
   const { routes, isLoading, error } = useRoutes();
   const renderRoute = useCallback(({ item }: { item: TriwayRoute }) => (
-    <ListRow title={item.name} subtitle={SERVICE_AREA_SHORT_LABEL} onPress={() => router.push({ pathname: '/(rider)/booking', params: { routeId: item.id } })} />
-  ), []);
+    <ListRow title={item.name} subtitle={SERVICE_AREA_SHORT_LABEL} onPress={() => router.push({ pathname: '/(rider)/booking', params: { routeId: item.id, pickup: params.pickup, destination: params.destination } })} />
+  ), [params.destination, params.pickup]);
 
   return (
     <Screen scroll={false}>

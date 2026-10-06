@@ -27,12 +27,12 @@ export default function RoleSelectionScreen() {
         <Card>
           <Text style={styles.cardTitle}>Rider</Text>
           <Text style={styles.cardText}>Choose a local route, review the cash fare, book a ride, and follow its status.</Text>
-          <AppButton label="Continue as Rider" onPress={() => chooseRole('rider')} />
+          <AppButton label="Log in as Rider" onPress={() => chooseRole('rider')} />
         </Card>
         <Card>
           <Text style={styles.cardTitle}>Driver</Text>
           <Text style={styles.cardText}>Receive the rider request and update the shared ride from pickup to completion.</Text>
-          <AppButton label="Continue as Driver" variant="secondary" onPress={() => chooseRole('driver')} />
+          <AppButton label="Log in as Driver" variant="secondary" onPress={() => chooseRole('driver')} />
         </Card>
       </View>
     </Screen>

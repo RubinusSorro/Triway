@@ -17,6 +17,7 @@ export default function RiderLayout() {
       <Tabs.Screen name="account" options={{ title: 'Account' }} />
       <Tabs.Screen name="ride" options={{ href: null }} />
       <Tabs.Screen name="history" options={{ href: null }} />
+      <Tabs.Screen name="details" options={{ href: null }} />
     </Tabs>
   );
 }

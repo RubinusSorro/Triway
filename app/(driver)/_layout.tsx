@@ -15,6 +15,7 @@ export default function DriverLayout() {
       <Tabs.Screen name="ride" options={{ title: 'Ride' }} />
       <Tabs.Screen name="history" options={{ href: null }} />
       <Tabs.Screen name="completion" options={{ href: null }} />
+      <Tabs.Screen name="details" options={{ href: null }} />
     </Tabs>
   );
 }

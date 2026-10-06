@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/Card';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Ride } from '@/features/rides/types/ride';
 import { rideStatusMeta, rideStatusSteps } from '@/features/rides/utils/rideStatus';
+import { getRideLeg } from '@/features/rides/utils/rideLeg';
 import { useAppTheme } from '@/hooks/useAppTheme';
 
 type RideStatusCardProps = {
@@ -15,12 +16,13 @@ export function RideStatusCard({ ride, perspective }: RideStatusCardProps) {
   const { theme } = useAppTheme();
   const meta = rideStatusMeta[ride.status];
   const currentIndex = rideStatusSteps.indexOf(ride.status);
+  const leg = getRideLeg(ride);
 
   return (
     <Card>
       <View style={styles.header}>
         <View style={styles.textGroup}>
-          <Text style={[styles.title, { color: theme.colors.text }]}>{ride.routeName}</Text>
+          <Text style={[styles.title, { color: theme.colors.text }]}>{leg.isReturnLeg ? 'Return Trip' : ride.isReturnRide ? 'Quick Return' : ride.routeName}</Text>
           <Text style={[styles.copy, { color: theme.colors.mutedText }]}>
             {perspective === 'rider' ? meta.riderCopy : meta.driverCopy}
           </Text>
@@ -49,9 +51,10 @@ export function RideStatusCard({ ride, perspective }: RideStatusCardProps) {
       </View>
 
       <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
-      <Text style={[styles.detail, { color: theme.colors.text }]}>Pickup: {ride.pickup}</Text>
-      <Text style={[styles.detail, { color: theme.colors.text }]}>Drop-off: {ride.destination}</Text>
-      <Text style={[styles.detail, { color: theme.colors.text }]}>Cash fare: PHP {ride.fare}</Text>
+      {perspective === 'driver' && ride.riderName ? <Text style={[styles.detail, { color: theme.colors.text }]}>Rider: {ride.riderName}</Text> : null}
+      <Text style={[styles.detail, { color: theme.colors.text }]}>Pickup: {leg.pickup}</Text>
+      <Text style={[styles.detail, { color: theme.colors.text }]}>Drop-off: {leg.destination}</Text>
+      <Text style={[styles.detail, { color: theme.colors.text }]}>Cash fare: PHP {leg.fare}</Text>
       {ride.driver ? (
         <Text style={[styles.detail, { color: theme.colors.text }]}>
           Driver: {ride.driver.name} • {ride.driver.plateNumber}

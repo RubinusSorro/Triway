@@ -27,6 +27,7 @@
     "@types/react": "~19.2.2",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~57.0.2",
+    "gh-pages": "^6.3.0",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -36,7 +37,9 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "doctor": "expo-doctor"
+    "doctor": "expo-doctor",
+    "predeploy": "expo export -p web",
+    "deploy": "gh-pages --nojekyll --dotfiles --before-add ./scripts/gh-pages-before-add.js -d dist"
   },
   "private": true
 }

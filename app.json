@@ -7,6 +7,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "triway",
+    "experiments": {
+      "baseUrl": "/Triway"
+    },
     "plugins": [
       "expo-router",
       "expo-image",

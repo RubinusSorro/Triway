@@ -41,7 +41,7 @@ export default function RiderHomeScreen() {
         <Text style={styles.loginText}>Log in for better user experience.</Text>
       </Card>
 
-      {ride ? (
+      {ride && ride.status !== 'cancelled' ? (
         <Card style={styles.rideCard}>
           <Text style={styles.rideEyebrow}>ACTIVE RIDE</Text>
           <Text style={styles.rideTitle}>{ride.routeName}</Text>
