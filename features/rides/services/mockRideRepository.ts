@@ -97,6 +97,12 @@ export const mockRideRepository: RideRepository = {
       .sort((a, b) => (b.completedAt ?? b.createdAt).localeCompare(a.completedAt ?? a.createdAt));
   },
 
+  async listDriverRideHistory(driverId) {
+    return [...rides.values()]
+      .filter((ride) => ride.driverId === driverId && (ride.status === 'completed' || ride.status === 'cancelled'))
+      .sort((a, b) => (b.completedAt ?? b.createdAt).localeCompare(a.completedAt ?? a.createdAt));
+  },
+
   async acceptRide(rideId, driver) {
     const ride = getRideOrThrow(rideId);
     const updated: Ride = {

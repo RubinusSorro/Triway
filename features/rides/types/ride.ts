@@ -14,6 +14,7 @@ export type Driver = {
 export type Ride = {
   id: string;
   riderId: string;
+  riderName?: string;
   driverId?: string;
   routeId: string;
   routeName: string;
@@ -30,6 +31,7 @@ export type Ride = {
 
 export type CreateRideInput = {
   riderId: string;
+  riderName: string;
   routeId: string;
   routeName: string;
   pickup: string;

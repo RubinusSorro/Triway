@@ -7,21 +7,30 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, radii, shadows, spacing, typography } from '@/constants/theme';
 import { TricycleIcon } from './TricycleIcon';
 
-const ITEMS = [
+type NavItem = { route: string; label: string; icon: ComponentProps<typeof Feather>['name'] | null };
+
+const RIDER_ITEMS = [
   { route: 'index', label: 'Home', icon: 'home' },
   { route: 'routes', label: 'Rides', icon: 'calendar' },
   { route: 'booking', label: 'Book a ride', icon: null },
   { route: 'passes', label: 'Wallet', icon: 'credit-card' },
   { route: 'account', label: 'Account', icon: 'user' },
-] as const;
+] satisfies readonly NavItem[];
+
+export const DRIVER_ITEMS = [
+  { route: 'index', label: 'Home', icon: 'home' },
+  { route: 'request', label: 'Request', icon: 'clipboard' },
+  { route: 'ride', label: 'Ride', icon: 'map' },
+] satisfies readonly NavItem[];
 
 type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>>[0];
+type AppBottomNavProps = TabBarProps & { items?: readonly NavItem[] };
 
-export function AppBottomNav({ state, navigation }: TabBarProps) {
+export function AppBottomNav({ state, navigation, items = RIDER_ITEMS }: AppBottomNavProps) {
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, spacing.sm) }]}>
-      {ITEMS.map((item) => {
+      {items.map((item) => {
         const route = state.routes.find((candidate) => candidate.name === item.route);
         if (!route) return null;
         const isFocused = state.routes[state.index]?.key === route.key;
@@ -29,7 +38,7 @@ export function AppBottomNav({ state, navigation }: TabBarProps) {
           const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
           if (!isFocused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
         };
-        if (item.route === 'booking') {
+        if (item.icon === null) {
           return (
             <Pressable key={item.route} accessibilityRole="button" accessibilityLabel="Book a ride" accessibilityState={{ selected: isFocused }} onPress={onPress} style={({ pressed }) => [styles.item, styles.centerItem, pressed && styles.pressed]}>
               <View style={[styles.centerButton, isFocused && styles.centerActive]}><TricycleIcon size={31} color={colors.onPrimary} /></View>

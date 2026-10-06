@@ -9,6 +9,7 @@ export type RideRepository = {
   subscribeToPendingRide(listener: (ride: Ride | null) => void): Unsubscribe;
   subscribeToDriverRide(driverId: string, listener: (ride: Ride | null) => void): Unsubscribe;
   listRideHistory(riderId: string): Promise<Ride[]>;
+  listDriverRideHistory(driverId: string): Promise<Ride[]>;
   acceptRide(rideId: string, driver: Driver): Promise<Ride>;
   updateRideStatus(rideId: string, status: RideStatus): Promise<Ride>;
 };

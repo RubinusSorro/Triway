@@ -43,12 +43,13 @@ export function useDriverRide(isOnline: boolean) {
     }
   };
 
-  const updateStatus = async (rideId: string, status: RideStatus) => {
+  const updateStatus = async (rideId: string, status: RideStatus): Promise<Ride | null> => {
     setError(null);
     try {
-      await rideService.updateRideStatus(rideId, status);
+      return await rideService.updateRideStatus(rideId, status);
     } catch {
       setError('Ride status could not be updated.');
+      return null;
     }
   };
 

@@ -12,6 +12,7 @@ export const rideService = {
   subscribeToPendingRide: rideRepository.subscribeToPendingRide,
   subscribeToDriverRide: rideRepository.subscribeToDriverRide,
   listRideHistory: rideRepository.listRideHistory,
+  listDriverRideHistory: rideRepository.listDriverRideHistory,
   acceptRide: rideRepository.acceptRide,
   updateRideStatus: rideRepository.updateRideStatus,
 };

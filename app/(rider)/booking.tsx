@@ -43,6 +43,7 @@ export default function RiderBookingScreen() {
     }
     const ride = await createRide({
       riderId: user.id,
+      riderName: user.name,
       routeId: selectedRoute.id,
       routeName: selectedRoute.name,
       pickup: from,

@@ -30,6 +30,10 @@ export const firebaseRideRepository: RideRepository = {
     return [];
   },
 
+  async listDriverRideHistory(_driverId) {
+    return [];
+  },
+
   async acceptRide(_rideId: string, _driver: Driver) {
     throw new Error('Firebase ride repository is not configured for this demo build.');
   },

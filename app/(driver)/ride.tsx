@@ -60,9 +60,9 @@ export default function DriverRideScreen() {
       return;
     }
 
-    await updateStatus(activeRide.id, nextAction.status);
-    if (nextAction.status === 'completed') {
-      goRider();
+    const updatedRide = await updateStatus(activeRide.id, nextAction.status);
+    if (updatedRide?.status === 'completed') {
+      router.replace({ pathname: '/(driver)/completion', params: { rideId: updatedRide.id } });
     }
   };
 
