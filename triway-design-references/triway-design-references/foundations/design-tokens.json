@@ -1,0 +1,89 @@
+{
+ "$note": "approved = supplied brand rules; proposed = needs approval",
+ "color": {
+  "approved": {
+   "emerald": "#064E3B",
+   "green": "#147D64",
+   "mint": "#CFE5CF",
+   "bg": "#F0F7F3",
+   "surface": "#FFFFFF",
+   "text": "#111111",
+   "muted": "#6B7280",
+   "danger": "#C0392B",
+   "gradientFrom": "#1F6B4F",
+   "gradientTo": "#3F9680"
+  },
+  "proposed": {
+   "warning": "#B45309",
+   "border": "#D5E3DA",
+   "disabled": "#9CA3AF",
+   "overlay": "rgba(17,17,17,0.5)"
+  }
+ },
+ "font": {
+  "family": "Inter",
+  "weights": {
+   "regular": 400,
+   "semibold": 600,
+   "extrabold": 800
+  }
+ },
+ "type": {
+  "display": [
+   32,
+   800
+  ],
+  "title": [
+   28,
+   800
+  ],
+  "section": [
+   22,
+   600
+  ],
+  "card": [
+   18,
+   600
+  ],
+  "body": [
+   16,
+   400
+  ],
+  "secondary": [
+   14,
+   400
+  ],
+  "caption": [
+   12,
+   400
+  ],
+  "button": [
+   16,
+   600
+  ]
+ },
+ "space": [
+  0,
+  4,
+  8,
+  12,
+  16,
+  20,
+  24,
+  32,
+  40,
+  48
+ ],
+ "radius": {
+  "sm": 8,
+  "md": 12,
+  "lg": 16,
+  "xl": 20,
+  "pill": 999
+ },
+ "touchTarget": 48,
+ "viewport": [
+  390,
+  844
+ ]
+}

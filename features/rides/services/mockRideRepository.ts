@@ -1,9 +1,11 @@
 import { CancellationActor, CancellationReason, CreateRideInput, Driver, Ride, RideStatus } from '@/features/rides/types/ride';
 import { RideRepository, Unsubscribe } from '@/features/rides/services/rideRepository';
+import { CreateRideRatingInput, RideRating } from '@/features/rides/types/rating';
 
 type Listener = () => void;
 
 const rides = new Map<string, Ride>();
+const ratings = new Map<string, RideRating>();
 const listeners = new Set<Listener>();
 
 function makeId() {
@@ -106,6 +108,25 @@ export const mockRideRepository: RideRepository = {
     return [...rides.values()]
       .filter((ride) => (ride.driverId === driverId || ride.preferredDriverId === driverId || ride.declinedDriverIds?.includes(driverId)) && (ride.status === 'completed' || ride.status === 'cancelled'))
       .sort((a, b) => historyTimestamp(b).localeCompare(historyTimestamp(a)));
+  },
+
+  async getRideRating(rideId, riderId) {
+    const rating = ratings.get(rideId);
+    return rating?.riderId === riderId ? rating : null;
+  },
+
+  async submitRideRating(input: CreateRideRatingInput) {
+    const ride = getRideOrThrow(input.rideId);
+    if (ride.status !== 'completed' || ride.riderId !== input.riderId || ride.driverId !== input.driverId) {
+      throw new Error('Ride cannot be rated');
+    }
+    if (ratings.has(input.rideId)) {
+      throw new Error('Ride has already been rated');
+    }
+
+    const rating: RideRating = { ...input, createdAt: new Date().toISOString() };
+    ratings.set(input.rideId, rating);
+    return rating;
   },
 
   async acceptRide(rideId, driver) {

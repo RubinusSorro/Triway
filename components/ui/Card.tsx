@@ -3,10 +3,10 @@ import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
 import { colors, radii, shadows, spacing } from '@/constants/theme';
 
-type CardProps = PropsWithChildren<{ style?: StyleProp<ViewStyle>; variant?: 'default' | 'tinted' }>;
+type CardProps = PropsWithChildren<{ style?: StyleProp<ViewStyle>; variant?: 'default' | 'tinted' | 'outlined' }>;
 
 export function Card({ children, style, variant = 'default' }: CardProps) {
-  return <View style={[styles.card, variant === 'tinted' && styles.tinted, style]}>{children}</View>;
+  return <View style={[styles.card, variant === 'tinted' && styles.tinted, variant === 'outlined' && styles.outlined, style]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -17,4 +17,5 @@ const styles = StyleSheet.create({
     ...shadows.card,
   },
   tinted: { backgroundColor: colors.tintRow },
+  outlined: { borderWidth: 1, borderColor: colors.border, shadowOpacity: 0, elevation: 0 },
 });

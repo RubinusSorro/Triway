@@ -16,7 +16,7 @@ export function Header({ eyebrow, title, subtitle }: HeaderProps) {
 
 const styles = StyleSheet.create({
   container: { gap: spacing.sm, marginBottom: spacing.xl },
-  eyebrow: { ...typography.captionSemibold, color: colors.primary, textTransform: 'uppercase' },
-  title: { ...typography.title, color: colors.text },
-  subtitle: { ...typography.body, color: colors.textMuted },
+  eyebrow: { ...typography.label, color: colors.primary, textTransform: 'uppercase' },
+  title: { ...typography.screenTitle, color: colors.text },
+  subtitle: { ...typography.secondaryBody, color: colors.textMuted },
 });

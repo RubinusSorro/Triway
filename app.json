@@ -4,8 +4,8 @@
     "slug": "Triway",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
+    "icon": "./assets/images/TRIWAY.png",
+    "userInterfaceStyle": "light",
     "scheme": "triway",
     "experiments": {
       "baseUrl": "/Triway"
@@ -18,7 +18,7 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#1F5C2E",
-          "image": "./assets/splash-icon.png",
+          "image": "./assets/images/TRIWAY.png",
           "imageWidth": 150,
           "resizeMode": "contain"
         }
@@ -29,15 +29,13 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#064E3B",
+        "foregroundImage": "./assets/images/TRIWAY.png"
       },
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/images/TRIWAY.png"
     }
   }
 }

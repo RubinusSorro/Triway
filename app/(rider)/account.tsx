@@ -13,11 +13,12 @@ export default function AccountScreen() {
   const { user, continueAs, signOut } = useAuth();
   return (
     <Screen includeTabBarPadding>
-      <ScreenHeader title="Account" showActions={false} />
+      <ScreenHeader title="Profile" showActions={false} />
       <Card style={styles.card}>
         <Text style={styles.name}>{user?.name ?? 'TRIWAY Rider'}</Text>
         <Text style={styles.copy}>Manage your {SERVICE_AREA_CITY_NAME} rides and demo preferences.</Text>
         <AppButton label="View ride history" variant="secondary" onPress={() => router.push('/(rider)/history')} />
+        <AppButton label="View ride passes" variant="outline" onPress={() => router.push('/(rider)/passes')} />
         <AppButton label="Switch to Driver" variant="secondary" onPress={() => { continueAs('driver'); router.replace('/(driver)'); }} />
         <AppButton label="Sign out" variant="ghost" onPress={() => { signOut(); router.replace('/(auth)'); }} />
       </Card>

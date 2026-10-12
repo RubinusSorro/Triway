@@ -11,9 +11,10 @@ export default function DriverLayout() {
       }}
     >
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
-      <Tabs.Screen name="request" options={{ title: 'Request' }} />
-      <Tabs.Screen name="ride" options={{ title: 'Ride' }} />
-      <Tabs.Screen name="history" options={{ href: null }} />
+      <Tabs.Screen name="request" options={{ title: 'Requests' }} />
+      <Tabs.Screen name="history" options={{ title: 'History' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
+      <Tabs.Screen name="ride" options={{ href: null }} />
       <Tabs.Screen name="completion" options={{ href: null }} />
       <Tabs.Screen name="details" options={{ href: null }} />
     </Tabs>

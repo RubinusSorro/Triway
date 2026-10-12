@@ -13,6 +13,8 @@ export const rideService = {
   subscribeToDriverRide: rideRepository.subscribeToDriverRide,
   listRideHistory: rideRepository.listRideHistory,
   listDriverRideHistory: rideRepository.listDriverRideHistory,
+  getRideRating: rideRepository.getRideRating,
+  submitRideRating: rideRepository.submitRideRating,
   acceptRide: rideRepository.acceptRide,
   declineRide: rideRepository.declineRide,
   cancelRide: rideRepository.cancelRide,

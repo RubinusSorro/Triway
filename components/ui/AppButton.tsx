@@ -1,38 +1,76 @@
-import { Pressable, StyleProp, StyleSheet, Text, ViewStyle } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { ComponentProps, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
 import { colors, radii, spacing, typography } from '@/constants/theme';
-import { PrimaryButton } from './PrimaryButton';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-type AppButtonProps = { label: string; onPress: () => void; disabled?: boolean; variant?: ButtonVariant; style?: StyleProp<ViewStyle> };
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 
-export function AppButton({ label, onPress, disabled, variant = 'primary', style }: AppButtonProps) {
-  if (variant === 'primary') return <PrimaryButton label={label} onPress={onPress} disabled={disabled} style={style} />;
+type AppButtonProps = {
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  variant?: ButtonVariant;
+  style?: StyleProp<ViewStyle>;
+  accessibilityLabel?: string;
+  icon?: ComponentProps<typeof Feather>['name'];
+};
+
+export function AppButton({ label, onPress, disabled = false, loading = false, variant = 'primary', style, accessibilityLabel, icon }: AppButtonProps) {
+  const isDisabled = disabled || loading;
+  const [isFocused, setIsFocused] = useState(false);
+  const variantStyle = getVariantStyle(variant);
 
   return (
     <Pressable
       accessibilityRole="button"
-      disabled={disabled}
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
+      android_ripple={{ color: variant === 'primary' || variant === 'danger' ? 'rgba(255, 255, 255, 0.20)' : colors.primarySoft }}
+      disabled={isDisabled}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.button,
-        variant === 'danger' ? styles.danger : styles.secondary,
-        pressed && styles.pressed,
-        disabled && styles.disabled,
-        style,
-      ]}
+      style={({ pressed }) => [styles.button, variantStyle.button, pressed && styles.pressed, isFocused && styles.focused, isDisabled && styles.disabled, style]}
     >
-      <Text style={[styles.label, variant === 'danger' && styles.dangerLabel]}>{label}</Text>
+      {loading ? <ActivityIndicator color={variantStyle.indicator} /> : (
+        <View style={styles.content}>
+          {icon ? <Feather accessible={false} name={icon} size={20} color={isDisabled ? colors.textMuted : variantStyle.icon} /> : null}
+          <Text numberOfLines={2} style={[styles.label, variantStyle.label, isDisabled && styles.disabledLabel]}>{label}</Text>
+        </View>
+      )}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  button: { minHeight: 50, borderRadius: radii.button, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.lg, borderWidth: 1 },
-  secondary: { backgroundColor: colors.surface, borderColor: colors.primary },
+  button: { minHeight: 52, borderRadius: radii.pill, alignItems: 'center', justifyContent: 'center', paddingHorizontal: spacing.lg, borderWidth: 1, overflow: 'hidden' },
+  primary: { backgroundColor: colors.primary, borderColor: colors.primary },
+  secondary: { backgroundColor: colors.tint, borderColor: colors.tint },
+  outline: { backgroundColor: colors.surface, borderColor: colors.primary },
+  ghost: { backgroundColor: colors.transparent, borderColor: colors.transparent },
   danger: { backgroundColor: colors.danger, borderColor: colors.danger },
-  pressed: { opacity: 0.8 },
-  disabled: { opacity: 0.45 },
-  label: { ...typography.button, color: colors.primary },
-  dangerLabel: { color: colors.onPrimary },
+  pressed: { opacity: 0.84, transform: [{ scale: 0.99 }] },
+  focused: { borderColor: colors.secondary, borderWidth: 2 },
+  disabled: { backgroundColor: colors.disabledBackground, borderColor: colors.disabledBackground, opacity: 1 },
+  content: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: spacing.sm, maxWidth: '100%' },
+  label: { ...typography.button, flexShrink: 1, textAlign: 'center' },
+  disabledLabel: { color: colors.textMuted },
+  onSolidLabel: { color: colors.onPrimary },
+  secondaryLabel: { color: colors.primary },
+  outlineLabel: { color: colors.primary },
+  ghostLabel: { color: colors.primary },
 });
+
+function getVariantStyle(variant: ButtonVariant) {
+  const variants = {
+    primary: { button: styles.primary, label: styles.onSolidLabel, indicator: colors.onPrimary, icon: colors.onPrimary },
+    secondary: { button: styles.secondary, label: styles.secondaryLabel, indicator: colors.primary, icon: colors.primary },
+    outline: { button: styles.outline, label: styles.outlineLabel, indicator: colors.primary, icon: colors.primary },
+    ghost: { button: styles.ghost, label: styles.ghostLabel, indicator: colors.primary, icon: colors.primary },
+    danger: { button: styles.danger, label: styles.onSolidLabel, indicator: colors.onPrimary, icon: colors.onPrimary },
+  } as const;
+
+  return variants[variant];
+}

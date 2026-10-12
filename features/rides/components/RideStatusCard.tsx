@@ -15,7 +15,8 @@ type RideStatusCardProps = {
 export function RideStatusCard({ ride, perspective }: RideStatusCardProps) {
   const { theme } = useAppTheme();
   const meta = rideStatusMeta[ride.status];
-  const currentIndex = rideStatusSteps.indexOf(ride.status);
+  const statusSteps = ride.isReturnRide ? rideStatusSteps : rideStatusSteps.filter((status) => status !== 'waiting_return');
+  const currentIndex = statusSteps.indexOf(ride.status);
   const leg = getRideLeg(ride);
 
   return (
@@ -31,7 +32,7 @@ export function RideStatusCard({ ride, perspective }: RideStatusCardProps) {
       </View>
 
       <View style={styles.progress}>
-        {rideStatusSteps.map((status, index) => {
+        {statusSteps.map((status, index) => {
           const isDone = index <= currentIndex;
 
           return (

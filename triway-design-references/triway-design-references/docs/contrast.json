@@ -1,0 +1,72 @@
+[
+ {
+  "pair": "#111111 on #FFFFFF",
+  "ratio": 18.88,
+  "use": "Body text"
+ },
+ {
+  "pair": "#111111 on #F0F7F3",
+  "ratio": 17.36,
+  "use": "Text on app bg"
+ },
+ {
+  "pair": "#6B7280 on #FFFFFF",
+  "ratio": 4.83,
+  "use": "Muted text"
+ },
+ {
+  "pair": "#6B7280 on #F0F7F3",
+  "ratio": 4.44,
+  "use": "Muted on bg"
+ },
+ {
+  "pair": "#FFFFFF on #064E3B",
+  "ratio": 9.72,
+  "use": "Primary button"
+ },
+ {
+  "pair": "#FFFFFF on #147D64",
+  "ratio": 5.06,
+  "use": "Secondary button"
+ },
+ {
+  "pair": "#147D64 on #FFFFFF",
+  "ratio": 5.06,
+  "use": "Green text/links"
+ },
+ {
+  "pair": "#064E3B on #CFE5CF",
+  "ratio": 7.29,
+  "use": "Badge on mint"
+ },
+ {
+  "pair": "#C0392B on #FFFFFF",
+  "ratio": 5.44,
+  "use": "Error text"
+ },
+ {
+  "pair": "#FFFFFF on #C0392B",
+  "ratio": 5.44,
+  "use": "Destructive button"
+ },
+ {
+  "pair": "#147D64 vs #F0F7F3 (non-text)",
+  "ratio": 4.65,
+  "use": "Icons/borders"
+ },
+ {
+  "pair": "#CFE5CF vs #FFFFFF (non-text)",
+  "ratio": 1.33,
+  "use": "Mint as sole border"
+ },
+ {
+  "pair": "#FFFFFF on #1F6B4F (gradient start)",
+  "ratio": 6.41,
+  "use": "Text on gradient"
+ },
+ {
+  "pair": "#FFFFFF on #3F9680 (gradient end)",
+  "ratio": 3.57,
+  "use": "Text on gradient"
+ }
+]
