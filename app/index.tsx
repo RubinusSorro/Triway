@@ -4,12 +4,16 @@ import { useEffect } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 import { colors, spacing, typography } from '@/constants/theme';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 export default function Index() {
+  const { user } = useAuth();
+
   useEffect(() => {
-    const timer = setTimeout(() => router.replace('/(auth)'), 1600);
+    const destination = user ? (user.role === 'rider' ? '/(rider)' : '/(driver)') : '/(auth)/role-selection';
+    const timer = setTimeout(() => router.replace(destination), 1600);
     return () => clearTimeout(timer);
-  }, []);
+  }, [user]);
 
   return (
     <View style={styles.screen}>

@@ -20,7 +20,7 @@ export default function DriverProfileScreen() {
         <Text style={styles.copy}>{demoDriver.vehicle} • {demoDriver.plateNumber}</Text>
         <Text style={styles.status}>Verified status is shown for this classroom demo only.</Text>
         <AppButton label="View ride history" variant="secondary" onPress={() => router.push('/(driver)/history')} />
-        <AppButton label="Sign out" variant="ghost" onPress={() => { signOut(); router.replace('/(auth)'); }} />
+        <AppButton label="Sign out" variant="ghost" onPress={() => { signOut(); router.replace('/(auth)/role-selection'); }} />
       </Card>
     </Screen>
   );

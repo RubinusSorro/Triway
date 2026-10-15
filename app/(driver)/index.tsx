@@ -107,7 +107,7 @@ export default function DriverHomeScreen() {
 
       <View style={styles.footerActions}>
         <AppButton label="Rider view" variant="secondary" onPress={switchToRider} style={styles.actionButton} />
-        <AppButton label="Sign out" variant="ghost" onPress={() => { signOut(); router.replace('/(auth)'); }} style={styles.actionButton} />
+        <AppButton label="Sign out" variant="ghost" onPress={() => { signOut(); router.replace('/(auth)/role-selection'); }} style={styles.actionButton} />
       </View>
     </Screen>
   );
