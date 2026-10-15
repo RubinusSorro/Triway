@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { fallbackRoutes } from '@/data/routes';
 import { Ride } from '@/features/rides/types/ride';
+import { getRideLeg } from '@/features/rides/utils/rideLeg';
 import { APPROACH_DEMO_SECONDS, DEMO_SPEED_KMH, TRIP_DEMO_SECONDS } from '../constants';
 import { LatLng } from '../types';
 import { measure, pointAt } from '../utils/geo';
@@ -24,7 +25,8 @@ const kmToMinutes = (km: number) => (km / DEMO_SPEED_KMH) * 60;
 const remaining = (totalMinutes: number, progress: number) => Math.max(0, Math.ceil(totalMinutes * (1 - progress)));
 
 export function useRideSimulation(ride: Ride): RideSimulation {
-  const isReturnLeg = Boolean((ride as unknown as { isReturnLeg?: boolean }).isReturnLeg);
+  const leg = getRideLeg(ride);
+  const isReturnLeg = Boolean(leg.isReturnLeg);
 
   const trip = useMemo(() => measure(getRoutePoints(ride.routeId, isReturnLeg)), [ride.routeId, isReturnLeg]);
   const approach = useMemo(
