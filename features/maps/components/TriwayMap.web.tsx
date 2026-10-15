@@ -10,6 +10,17 @@ import { LatLng } from '../types';
 import { TriwayMapProps } from './TriwayMap';
 
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+const WORKER_URL = 'https://unpkg.com/maplibre-gl@6.14.0/dist/maplibre-gl-worker.mjs';
+
+// Configure Web Worker URL for MapLibre GL JS (required when bundled with Metro / Expo Web)
+if (typeof window !== 'undefined') {
+  if (typeof (maplibregl as any).setWorkerUrl === 'function') {
+    (maplibregl as any).setWorkerUrl(WORKER_URL);
+  }
+  if ('workerUrl' in maplibregl || !(maplibregl as any).workerUrl) {
+    (maplibregl as any).workerUrl = WORKER_URL;
+  }
+}
 
 const toLngLat = (p: LatLng): [number, number] => [p.longitude, p.latitude];
 
@@ -60,6 +71,10 @@ export function TriwayMap({ sim, pickup, destination, status = 'requested' }: Tr
     if (!containerNode || !bounds || tripPoints.length < 2) return;
 
     isMapLoadedRef.current = false;
+    if (typeof (maplibregl as any).setWorkerUrl === 'function') {
+      (maplibregl as any).setWorkerUrl(WORKER_URL);
+    }
+
     const map = new maplibregl.Map({
       container: containerNode,
       style: STYLE_URL,
@@ -67,6 +82,12 @@ export function TriwayMap({ sim, pickup, destination, status = 'requested' }: Tr
       zoom: 13,
       attributionControl: false,
       trackResize: true,
+    });
+
+    map.on('error', (e) => {
+      if (e?.error?.message && !e.error.message.includes('abort')) {
+        console.warn('[TriwayMap.web] MapLibre warning:', e.error.message);
+      }
     });
 
     mapRef.current = map;
