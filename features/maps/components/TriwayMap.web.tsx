@@ -1,6 +1,4 @@
-import * as maplibregl from 'maplibre-gl';
-// @ts-expect-error CSS side-effect import for Web MapLibre GL
-import 'maplibre-gl/dist/maplibre-gl.css';
+import type * as MapLibreGL from 'maplibre-gl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -12,15 +10,8 @@ import { TriwayMapProps } from './TriwayMap';
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
 const WORKER_URL = 'https://unpkg.com/maplibre-gl@6.14.0/dist/maplibre-gl-worker.mjs';
 
-// Configure Web Worker URL for MapLibre GL JS (required when bundled with Metro / Expo Web)
-if (typeof window !== 'undefined') {
-  if (typeof (maplibregl as any).setWorkerUrl === 'function') {
-    (maplibregl as any).setWorkerUrl(WORKER_URL);
-  }
-  if ('workerUrl' in maplibregl || !(maplibregl as any).workerUrl) {
-    (maplibregl as any).workerUrl = WORKER_URL;
-  }
-}
+// Module-level cache for client-side evaluation
+let cachedMaplibre: typeof MapLibreGL | null = null;
 
 const toLngLat = (p: LatLng): [number, number] => [p.longitude, p.latitude];
 
@@ -31,8 +22,10 @@ const lineFeature = (points: LatLng[]): GeoJSON.Feature<GeoJSON.LineString> => (
 });
 
 export function TriwayMap({ sim, pickup, destination, status = 'requested' }: TriwayMapProps) {
+  const [isMounted, setIsMounted] = useState(false);
+  const [maplibregl, setMaplibregl] = useState<typeof MapLibreGL | null>(cachedMaplibre);
   const [containerNode, setContainerNode] = useState<HTMLDivElement | null>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
+  const mapRef = useRef<MapLibreGL.Map | null>(null);
   const isMapLoadedRef = useRef(false);
 
   const tripPoints = sim?.tripPoints ?? [];
@@ -66,9 +59,41 @@ export function TriwayMap({ sim, pickup, destination, status = 'requested' }: Tr
     return [Math.min(...lons), Math.min(...lats), Math.max(...lons), Math.max(...lats)];
   }, [tripPoints, approachPoints, showApproach]);
 
+  // Client-side only mount check & dynamic import
+  useEffect(() => {
+    setIsMounted(true);
+
+    if (cachedMaplibre) {
+      setMaplibregl(cachedMaplibre);
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      Promise.all([
+        import('maplibre-gl'),
+        // @ts-expect-error CSS side-effect import
+        import('maplibre-gl/dist/maplibre-gl.css').catch(() => {}),
+      ])
+        .then(([mod]) => {
+          const lib = ((mod as any).default ?? mod) as typeof MapLibreGL;
+          if (typeof (lib as any).setWorkerUrl === 'function') {
+            (lib as any).setWorkerUrl(WORKER_URL);
+          }
+          if ('workerUrl' in lib || !(lib as any).workerUrl) {
+            (lib as any).workerUrl = WORKER_URL;
+          }
+          cachedMaplibre = lib;
+          setMaplibregl(lib);
+        })
+        .catch((err) => {
+          console.warn('[TriwayMap.web] Failed to load MapLibre GL:', err);
+        });
+    }
+  }, []);
+
   // Initialize MapLibre GL instance
   useEffect(() => {
-    if (!containerNode || !bounds || tripPoints.length < 2) return;
+    if (!isMounted || !maplibregl || !containerNode || !bounds || tripPoints.length < 2) return;
 
     isMapLoadedRef.current = false;
     if (typeof (maplibregl as any).setWorkerUrl === 'function') {
@@ -192,31 +217,31 @@ export function TriwayMap({ sim, pickup, destination, status = 'requested' }: Tr
     };
     // Re-mount map if container node or initial trip route changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [containerNode, tripPoints.length]);
+  }, [isMounted, maplibregl, containerNode, tripPoints.length]);
 
   // Update dynamic data (driver position, approach line) on simulation progress
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !isMapLoadedRef.current) return;
+    if (!map || !isMapLoadedRef.current || !maplibregl) return;
 
-    const tripSource = map.getSource('trip') as maplibregl.GeoJSONSource | undefined;
+    const tripSource = map.getSource('trip') as MapLibreGL.GeoJSONSource | undefined;
     if (tripSource) {
       tripSource.setData(tripLine);
     }
 
-    const approachSource = map.getSource('approach') as maplibregl.GeoJSONSource | undefined;
+    const approachSource = map.getSource('approach') as MapLibreGL.GeoJSONSource | undefined;
     if (approachSource) {
       approachSource.setData(approachLine);
       map.setLayoutProperty('approachLine', 'visibility', showApproach ? 'visible' : 'none');
     }
 
-    const pinsSource = map.getSource('pins') as maplibregl.GeoJSONSource | undefined;
+    const pinsSource = map.getSource('pins') as MapLibreGL.GeoJSONSource | undefined;
     if (pinsSource && pins) {
       pinsSource.setData(pins);
     }
-  }, [tripLine, approachLine, pins, showApproach]);
+  }, [maplibregl, tripLine, approachLine, pins, showApproach]);
 
-  if (!sim || !pins || !bounds) {
+  if (!isMounted || !maplibregl || !sim || !pins || !bounds) {
     return <SimulatedMap pickup={pickup} destination={destination} status={status} />;
   }
 
