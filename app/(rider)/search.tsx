@@ -8,6 +8,7 @@ import { Screen } from '@/components/layout/Screen';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { colors, iconSizes, spacing, typography } from '@/constants/theme';
 import { fallbackSuggestedLocations } from '@/data/suggestedLocations';
+import { usePlaceSearch } from '@/features/maps/hooks/usePlaceSearch';
 import { RouteCard } from '@/features/routes/components/RouteCard';
 import { useRoutes } from '@/features/routes/hooks/useRoutes';
 
@@ -19,6 +20,8 @@ export default function RiderSearchScreen() {
   const { query: initialQuery } = useLocalSearchParams<{ query?: string }>();
   const [query, setQuery] = useState(initialQuery ?? '');
   const { routes, isLoading, error } = useRoutes();
+  const { places, isLoading: isPlacesLoading, error: placesError } = usePlaceSearch(query);
+
   const trimmedQuery = query.trim();
   const matchingRoutes = useMemo(
     () => routes.filter((route) => !trimmedQuery || [route.name, route.origin, route.destination].some((value) => matches(value, trimmedQuery))),
@@ -29,16 +32,20 @@ export default function RiderSearchScreen() {
     [trimmedQuery],
   );
 
+  const hasAnyResults = matchingRoutes.length > 0 || matchingLocations.length > 0 || places.length > 0;
+
   return (
     <Screen includeTabBarPadding>
       <Pressable accessibilityRole="button" accessibilityLabel="Go back" onPress={() => router.back()} style={styles.back}><Feather name="arrow-left" size={iconSizes.lg} color={colors.text} /><Text style={styles.backLabel}>Back</Text></Pressable>
       <Text accessibilityRole="header" style={styles.title}>Find a destination</Text>
-      <Text style={styles.subtitle}>Search only the available TRIWAY route and location fixtures.</Text>
+      <Text style={styles.subtitle}>Search Antipolo destinations, routes, and map landmarks.</Text>
       <View style={styles.search}><SearchBar value={query} onChangeText={setQuery} /></View>
 
       {isLoading ? <ActivityIndicator style={styles.loader} color={colors.primary} /> : null}
       {!isLoading && error ? <EmptyState title="Search unavailable" body={error} /> : null}
-      {!isLoading && !error && matchingRoutes.length === 0 && matchingLocations.length === 0 ? <EmptyState title="No matches" body="Try a fixture route, terminal, or landmark name." actionLabel="Browse all routes" onAction={() => router.replace('/(rider)/routes')} /> : null}
+      {!isLoading && !error && !isPlacesLoading && !hasAnyResults ? (
+        <EmptyState title="No matches" body="Try a fixture route, terminal, or landmark name." actionLabel="Browse all routes" onAction={() => router.replace('/(rider)/routes')} />
+      ) : null}
 
       {!isLoading && !error && matchingLocations.length > 0 ? (
         <View style={styles.locations}>
@@ -50,6 +57,34 @@ export default function RiderSearchScreen() {
               <Feather name="chevron-right" size={iconSizes.md} color={colors.primary} />
             </Pressable>
           ))}
+        </View>
+      ) : null}
+
+      {trimmedQuery.length >= 3 ? (
+        <View style={styles.locations}>
+          <Text style={styles.sectionTitle}>Map Places</Text>
+          {isPlacesLoading ? <ActivityIndicator color={colors.primary} style={styles.miniLoader} /> : null}
+          {placesError ? <Text style={styles.errorText}>{placesError}</Text> : null}
+          {!isPlacesLoading && !placesError && places.length === 0 ? (
+            <Text style={styles.noPlacesText}>{`No map places found for "${trimmedQuery}".`}</Text>
+          ) : null}
+          {places.map((place) => (
+            <Pressable
+              key={place.id}
+              accessibilityRole="button"
+              accessibilityLabel={`Browse routes to ${place.name}`}
+              onPress={() => router.push({ pathname: '/(rider)/routes', params: { destination: place.name } })}
+              style={({ pressed }) => [styles.locationRow, pressed && styles.pressed]}
+            >
+              <Feather name="map-pin" size={iconSizes.md} color={colors.secondary} />
+              <View style={styles.locationCopy}>
+                <Text style={styles.locationName}>{place.name}</Text>
+                <Text style={styles.locationMeta}>{place.subtitle}</Text>
+              </View>
+              <Feather name="chevron-right" size={iconSizes.md} color={colors.primary} />
+            </Pressable>
+          ))}
+          <Text style={styles.attribution}>Search data © OpenStreetMap contributors via Photon</Text>
         </View>
       ) : null}
 
@@ -78,4 +113,8 @@ const styles = StyleSheet.create({
   locationMeta: { ...typography.caption, color: colors.textMuted, marginTop: spacing.xs },
   routes: { gap: spacing.md, marginTop: spacing.xxl },
   pressed: { opacity: 0.72 },
+  miniLoader: { marginVertical: spacing.md },
+  errorText: { ...typography.caption, color: colors.danger, marginVertical: spacing.xs },
+  noPlacesText: { ...typography.secondaryBody, color: colors.textMuted },
+  attribution: { ...typography.caption, color: colors.textMuted, marginTop: spacing.xs },
 });
