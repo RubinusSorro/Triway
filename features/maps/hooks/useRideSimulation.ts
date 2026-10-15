@@ -1,0 +1,75 @@
+import { useMemo } from 'react';
+
+import { fallbackRoutes } from '@/data/routes';
+import { Ride } from '@/features/rides/types/ride';
+import { APPROACH_DEMO_SECONDS, DEMO_SPEED_KMH, TRIP_DEMO_SECONDS } from '../constants';
+import { LatLng } from '../types';
+import { measure, pointAt } from '../utils/geo';
+import { getApproachPoints, getRoutePoints } from '../utils/routePath';
+import { useSimulatedProgress } from './useSimulatedProgress';
+
+export type SimulationPhase = 'approach' | 'trip' | 'idle';
+
+export type RideSimulation = {
+  phase: SimulationPhase;
+  tripPoints: LatLng[];
+  approachPoints: LatLng[];
+  driver?: LatLng;
+  etaMinutes: number | null;
+  headline: string;
+  subline: string;
+};
+
+const kmToMinutes = (km: number) => (km / DEMO_SPEED_KMH) * 60;
+const remaining = (totalMinutes: number, progress: number) => Math.max(0, Math.ceil(totalMinutes * (1 - progress)));
+
+export function useRideSimulation(ride: Ride): RideSimulation {
+  const isReturnLeg = Boolean((ride as unknown as { isReturnLeg?: boolean }).isReturnLeg);
+
+  const trip = useMemo(() => measure(getRoutePoints(ride.routeId, isReturnLeg)), [ride.routeId, isReturnLeg]);
+  const approach = useMemo(
+    () => measure(isReturnLeg ? [] : getApproachPoints(ride.routeId)),
+    [ride.routeId, isReturnLeg],
+  );
+
+  const phase: SimulationPhase =
+    ride.status === 'arriving' && approach.points.length > 1 ? 'approach'
+    : ride.status === 'ongoing' && trip.points.length > 1 ? 'trip'
+    : 'idle';
+
+  const progress = useSimulatedProgress(
+    phase !== 'idle',
+    (phase === 'approach' ? APPROACH_DEMO_SECONDS : TRIP_DEMO_SECONDS) * 1000,
+    `${ride.id}:${ride.status}:${isReturnLeg}`,
+  );
+
+  // Trip ETA matches the route card when the fixture has etaMinutes.
+  const fixtureMinutes = fallbackRoutes.find((r) => r.id === ride.routeId)?.etaMinutes;
+  const tripTotalMinutes = fixtureMinutes ?? kmToMinutes(trip.totalKm);
+  const approachTotalMinutes = kmToMinutes(approach.totalKm);
+
+  let driver: LatLng | undefined;
+  if (phase === 'approach') driver = pointAt(approach, progress);
+  else if (phase === 'trip') driver = pointAt(trip, progress);
+  else if (ride.status === 'completed' || (ride.status as string) === 'waiting_return') driver = trip.points[trip.points.length - 1];
+  else driver = trip.points[0];
+
+  let etaMinutes: number | null = null;
+  let headline = 'Driver on the way';
+  let subline = 'Demo estimate; not live GPS.';
+
+  if (phase === 'approach') {
+    etaMinutes = remaining(approachTotalMinutes, progress);
+    headline = progress >= 1 ? 'Driver has arrived at pickup' : `Driver arrives in about ${Math.max(1, etaMinutes)} min`;
+    subline = `${(approach.totalKm * (1 - progress)).toFixed(1)} km to pickup · demo speed, not live GPS`;
+  } else if (phase === 'trip') {
+    etaMinutes = remaining(tripTotalMinutes, progress);
+    headline = progress >= 1 ? 'You have reached the drop-off' : `Arriving at drop-off in about ${Math.max(1, etaMinutes)} min`;
+    subline = `${(trip.totalKm * (1 - progress)).toFixed(1)} km to go · demo speed, not live GPS`;
+  } else if (ride.status === 'arriving') {
+    headline = 'Driver is arriving';
+    subline = 'No pickup path set for this route in the demo; not live GPS.';
+  }
+
+  return { phase, tripPoints: trip.points, approachPoints: approach.points, driver, etaMinutes, headline, subline };
+}
