@@ -73,7 +73,16 @@ export default function RiderSearchScreen() {
               key={place.id}
               accessibilityRole="button"
               accessibilityLabel={`Browse routes to ${place.name}`}
-              onPress={() => router.push({ pathname: '/(rider)/routes', params: { destination: place.name } })}
+              onPress={() =>
+                router.push({
+                  pathname: '/(rider)/routes',
+                  params: {
+                    destination: place.name,
+                    destLat: place.latitude.toString(),
+                    destLng: place.longitude.toString(),
+                  },
+                })
+              }
               style={({ pressed }) => [styles.locationRow, pressed && styles.pressed]}
             >
               <Feather name="map-pin" size={iconSizes.md} color={colors.secondary} />

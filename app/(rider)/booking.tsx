@@ -16,15 +16,43 @@ import { BookingTripType, parseBookingDraft, toBookingDraftParams } from '@/feat
 import { isQuickReturnEligible } from '@/features/rides/utils/quickReturn';
 
 export default function RiderBookingScreen() {
-  const params = useLocalSearchParams<{ routeId?: string; pickup?: string; destination?: string; tripType?: string }>();
+  const params = useLocalSearchParams<{
+    routeId?: string;
+    pickup?: string;
+    destination?: string;
+    tripType?: string;
+    pickupLat?: string;
+    pickupLng?: string;
+    destLat?: string;
+    destLng?: string;
+  }>();
   const { routes, isLoading } = useRoutes();
-  const selectedRoute = useMemo(() => routes.find((route) => route.id === params.routeId), [params.routeId, routes]);
   const incomingDraft = parseBookingDraft(params);
   const [fromOverride, setFromOverride] = useState<string | null>(null);
   const [toOverride, setToOverride] = useState<string | null>(null);
   const [tripType, setTripType] = useState<BookingTripType>(incomingDraft?.tripType ?? 'one_way');
-  const from = fromOverride ?? params.pickup ?? selectedRoute?.origin ?? SERVICE_AREA_SHORT_LABEL;
-  const to = toOverride ?? params.destination ?? selectedRoute?.destination ?? '';
+  const from = fromOverride ?? params.pickup ?? SERVICE_AREA_SHORT_LABEL;
+  const to = toOverride ?? params.destination ?? '';
+
+  const selectedRoute = useMemo(() => {
+    if (params.routeId) {
+      const match = routes.find((route) => route.id === params.routeId);
+      if (match) return match;
+    }
+    if (from && to) {
+      return {
+        id: params.routeId || `custom-${encodeURIComponent(from + '-' + to)}`,
+        name: `${from} – ${to}`,
+        origin: from,
+        destination: to,
+        distanceKm: 3.2,
+        baseFare: 55,
+        etaMinutes: 12,
+        notes: 'Antipolo custom trip',
+      };
+    }
+    return undefined;
+  }, [params.routeId, routes, from, to]);
 
   const fromValid = isLocationWithinServiceArea(from);
   const toValid = isLocationWithinServiceArea(to);
@@ -54,6 +82,10 @@ export default function RiderBookingScreen() {
         destination: to,
         tripType: selectedTripType,
         paymentMethod: 'cash',
+        pickupLat: params.pickupLat ? Number(params.pickupLat) : undefined,
+        pickupLng: params.pickupLng ? Number(params.pickupLng) : undefined,
+        destLat: params.destLat ? Number(params.destLat) : undefined,
+        destLng: params.destLng ? Number(params.destLng) : undefined,
       }),
     });
   };

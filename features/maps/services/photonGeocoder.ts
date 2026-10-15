@@ -12,9 +12,9 @@ const BBOX = `${SERVICE_AREA.bounds.southWest.lng},${SERVICE_AREA.bounds.southWe
 const CENTER_LAT = SERVICE_AREA.center.lat;
 const CENTER_LNG = SERVICE_AREA.center.lng;
 
-export async function searchPlaces(query: string, signal?: AbortSignal): Promise<PlaceResult[]> {
+export async function searchPlaces(query: string, signal?: AbortSignal, minChars: number = 1): Promise<PlaceResult[]> {
   const trimmed = query.trim();
-  if (trimmed.length < 3) return [];
+  if (trimmed.length < minChars) return [];
 
   const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(trimmed)}&bbox=${BBOX}&lat=${CENTER_LAT}&lon=${CENTER_LNG}&lang=en&limit=8`;
 

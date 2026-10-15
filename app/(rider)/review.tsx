@@ -28,7 +28,25 @@ export default function RiderReviewScreen() {
   const { ride: activeRide, isLoading: isActiveRideLoading } = useCurrentRide(user?.id);
   const [dialogState, setDialogState] = useState<DialogState>(null);
   const submissionInProgress = useRef(false);
-  const route = useMemo(() => routes.find((item) => item.id === draft?.routeId), [draft?.routeId, routes]);
+  const route = useMemo(() => {
+    if (draft?.routeId) {
+      const match = routes.find((item) => item.id === draft.routeId);
+      if (match) return match;
+      if (draft.pickup && draft.destination) {
+        return {
+          id: draft.routeId,
+          name: `${draft.pickup} – ${draft.destination}`,
+          origin: draft.pickup,
+          destination: draft.destination,
+          distanceKm: 3.2,
+          baseFare: 55,
+          etaMinutes: 12,
+          notes: 'Antipolo custom trip',
+        };
+      }
+    }
+    return undefined;
+  }, [draft, routes]);
 
   const isQuickReturn = draft?.tripType === 'quick_return';
   const quickReturnIsValid = !isQuickReturn || isQuickReturnEligible(route?.distanceKm);
@@ -56,6 +74,14 @@ export default function RiderReviewScreen() {
       routeName: route.name,
       pickup: draft.pickup,
       destination: draft.destination,
+      pickupCoords:
+        draft.pickupLat != null && draft.pickupLng != null
+          ? { latitude: draft.pickupLat, longitude: draft.pickupLng }
+          : undefined,
+      destinationCoords:
+        draft.destLat != null && draft.destLng != null
+          ? { latitude: draft.destLat, longitude: draft.destLng }
+          : undefined,
       fare: route.baseFare,
       distanceKm: route.distanceKm,
       outboundFare: isQuickReturn ? route.baseFare : undefined,

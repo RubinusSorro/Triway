@@ -8,14 +8,14 @@ export type UsePlaceSearchResult = {
   error: string | null;
 };
 
-export function usePlaceSearch(query: string): UsePlaceSearchResult {
+export function usePlaceSearch(query: string, minChars: number = 1): UsePlaceSearchResult {
   const [places, setPlaces] = useState<PlaceResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const trimmed = query.trim();
-    if (trimmed.length < 3) {
+    if (trimmed.length < minChars) {
       setPlaces([]);
       setIsLoading(false);
       setError(null);
@@ -28,7 +28,7 @@ export function usePlaceSearch(query: string): UsePlaceSearchResult {
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       try {
-        const results = await searchPlaces(trimmed, controller.signal);
+        const results = await searchPlaces(trimmed, controller.signal, minChars);
         setPlaces(results);
         setIsLoading(false);
       } catch (err: any) {
@@ -38,13 +38,13 @@ export function usePlaceSearch(query: string): UsePlaceSearchResult {
         setError('Unable to load place results.');
         setIsLoading(false);
       }
-    }, 400);
+    }, 300);
 
     return () => {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [query]);
+  }, [query, minChars]);
 
   return { places, isLoading, error };
 }

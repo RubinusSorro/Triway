@@ -10,7 +10,14 @@ import { RouteCard } from '@/features/routes/components/RouteCard';
 import { useRoutes } from '@/features/routes/hooks/useRoutes';
 
 export default function RiderRoutesScreen() {
-  const params = useLocalSearchParams<{ pickup?: string; destination?: string }>();
+  const params = useLocalSearchParams<{
+    pickup?: string;
+    destination?: string;
+    pickupLat?: string;
+    pickupLng?: string;
+    destLat?: string;
+    destLng?: string;
+  }>();
   const { routes, isLoading, error } = useRoutes();
   const selectedDestination = params.destination?.trim();
   const availableRoutes = selectedDestination
@@ -26,7 +33,24 @@ export default function RiderRoutesScreen() {
         {!isLoading && error ? <EmptyState title="Routes unavailable" body={error} /> : null}
         {!isLoading && !error && availableRoutes.length === 0 ? <EmptyState title="No matching routes" body={selectedDestination ? `No fixture route ends at ${selectedDestination}.` : 'No route fixtures are available.'} actionLabel="Search again" onAction={() => router.push('/(rider)/search')} /> : null}
         {!isLoading && !error ? availableRoutes.map((route) => (
-          <RouteCard key={route.id} route={route} onPress={() => router.push({ pathname: '/(rider)/booking', params: { routeId: route.id, pickup: params.pickup, destination: params.destination } })} />
+          <RouteCard
+            key={route.id}
+            route={route}
+            onPress={() =>
+              router.push({
+                pathname: '/(rider)/booking',
+                params: {
+                  routeId: route.id,
+                  pickup: params.pickup,
+                  destination: params.destination,
+                  pickupLat: params.pickupLat,
+                  pickupLng: params.pickupLng,
+                  destLat: params.destLat,
+                  destLng: params.destLng,
+                },
+              })
+            }
+          />
         )) : null}
       </View>
     </Screen>

@@ -37,6 +37,8 @@ export type Ride = {
   routeName: string;
   pickup: string;
   destination: string;
+  pickupCoords?: { latitude: number; longitude: number };
+  destinationCoords?: { latitude: number; longitude: number };
   fare: number;
   distanceKm: number;
   outboundFare?: number;
@@ -63,6 +65,8 @@ export type CreateRideInput = {
   routeName: string;
   pickup: string;
   destination: string;
+  pickupCoords?: { latitude: number; longitude: number };
+  destinationCoords?: { latitude: number; longitude: number };
   fare: number;
   distanceKm: number;
   paymentMethod: PaymentMethod;
