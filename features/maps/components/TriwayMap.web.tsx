@@ -1,7 +1,7 @@
 import * as maplibregl from 'maplibre-gl';
 // @ts-expect-error CSS side-effect import for Web MapLibre GL
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { colors } from '@/constants/theme';
@@ -20,7 +20,7 @@ const lineFeature = (points: LatLng[]): GeoJSON.Feature<GeoJSON.LineString> => (
 });
 
 export function TriwayMap({ sim, pickup, destination, status = 'requested' }: TriwayMapProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [containerNode, setContainerNode] = useState<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const isMapLoadedRef = useRef(false);
 
@@ -55,23 +55,42 @@ export function TriwayMap({ sim, pickup, destination, status = 'requested' }: Tr
     return [Math.min(...lons), Math.min(...lats), Math.max(...lons), Math.max(...lats)];
   }, [tripPoints, approachPoints, showApproach]);
 
-  // Initialize Map
+  // Initialize MapLibre GL instance
   useEffect(() => {
-    if (!containerRef.current || !bounds || tripPoints.length < 2) return;
+    if (!containerNode || !bounds || tripPoints.length < 2) return;
 
     isMapLoadedRef.current = false;
     const map = new maplibregl.Map({
-      container: containerRef.current,
+      container: containerNode,
       style: STYLE_URL,
       center: [tripPoints[0].longitude, tripPoints[0].latitude],
       zoom: 13,
       attributionControl: false,
+      trackResize: true,
     });
 
     mapRef.current = map;
 
+    // Resize observer to ensure canvas stays properly sized within React Native Web flex layout
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(() => {
+        map.resize();
+      });
+      ro.observe(containerNode);
+    }
+
+    const handleResize = () => {
+      map.resize();
+    };
+    window.addEventListener('resize', handleResize);
+
+    const resizeTimer1 = setTimeout(() => map.resize(), 100);
+    const resizeTimer2 = setTimeout(() => map.resize(), 300);
+
     map.on('load', () => {
       isMapLoadedRef.current = true;
+      map.resize();
 
       // Trip route layer
       map.addSource('trip', { type: 'geojson', data: tripLine });
@@ -142,13 +161,17 @@ export function TriwayMap({ sim, pickup, destination, status = 'requested' }: Tr
     });
 
     return () => {
+      clearTimeout(resizeTimer1);
+      clearTimeout(resizeTimer2);
+      window.removeEventListener('resize', handleResize);
+      ro?.disconnect();
       isMapLoadedRef.current = false;
       map.remove();
       mapRef.current = null;
     };
-    // Re-mount map if trip points identity completely changes
+    // Re-mount map if container node or initial trip route changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tripPoints.length]);
+  }, [containerNode, tripPoints.length]);
 
   // Update dynamic data (driver position, approach line) on simulation progress
   useEffect(() => {
@@ -178,7 +201,28 @@ export function TriwayMap({ sim, pickup, destination, status = 'requested' }: Tr
 
   return (
     <View style={styles.wrap}>
-      <div ref={containerRef} style={styles.mapContainer} />
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            .maplibregl-map { width: 100%; height: 100%; position: relative; }
+            .maplibregl-canvas-container { width: 100%; height: 100%; position: absolute; }
+            .maplibregl-canvas { width: 100% !important; height: 100% !important; position: absolute; top: 0; left: 0; }
+          `,
+        }}
+      />
+      <div
+        ref={setContainerNode}
+        style={{
+          width: '100%',
+          height: 240,
+          minHeight: 240,
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        }}
+      />
     </View>
   );
 }
@@ -186,6 +230,7 @@ export function TriwayMap({ sim, pickup, destination, status = 'requested' }: Tr
 const styles = StyleSheet.create({
   wrap: {
     height: 240,
+    width: '100%',
     borderRadius: 18,
     overflow: 'hidden',
     marginBottom: 16,
@@ -193,11 +238,4 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     position: 'relative',
   },
-  mapContainer: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-  } as any,
 });
