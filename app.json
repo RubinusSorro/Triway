@@ -19,12 +19,14 @@
           "imageWidth": 150,
           "resizeMode": "contain"
         }
-      ]
+      ],
+      "@maplibre/maplibre-react-native"
     ],
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.triway.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
