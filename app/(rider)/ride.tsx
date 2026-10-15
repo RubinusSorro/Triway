@@ -1,65 +1,52 @@
 import { router } from 'expo-router';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { useEffect } from 'react';
+import { ActivityIndicator } from 'react-native';
 
 import { EmptyState } from '@/components/common/EmptyState';
-import { Header } from '@/components/layout/Header';
 import { Screen } from '@/components/layout/Screen';
-import { AppButton } from '@/components/ui/AppButton';
+import { ScreenHeader } from '@/components/ui/ScreenHeader';
+import { colors } from '@/constants/theme';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { RideStatusCard } from '@/features/rides/components/RideStatusCard';
-import { SimulatedMap } from '@/features/rides/components/SimulatedMap';
 import { useCurrentRide } from '@/features/rides/hooks/useCurrentRide';
-import { useAppTheme } from '@/hooks/useAppTheme';
+import { getRiderLifecycleRouteForRide } from '@/features/rides/utils/riderLifecycle';
 
-export default function RiderRideScreen() {
-  const { theme } = useAppTheme();
-  const { user, continueAs } = useAuth();
+export default function RiderRideCompatibilityScreen() {
+  const { user } = useAuth();
   const { ride, isLoading } = useCurrentRide(user?.id);
+  const targetRoute = getRiderLifecycleRouteForRide(ride);
 
-  if (isLoading) {
-    return (
-      <Screen>
-        <ActivityIndicator color={theme.colors.primary} />
-      </Screen>
-    );
+  useEffect(() => {
+    if (targetRoute) router.replace(targetRoute);
+  }, [targetRoute]);
+
+  if (isLoading || targetRoute) {
+    return <Screen scroll={false}><ActivityIndicator color={colors.primary} /></Screen>;
   }
 
-  if (!ride) {
+  if (ride?.status === 'cancelled') {
     return (
-      <Screen>
+      <Screen scroll={false}>
+        <ScreenHeader title="Ride cancelled" showActions={false} />
+        <RideStatusCard ride={ride} perspective="rider" />
         <EmptyState
-          title="No active ride"
-          body="Completed trips move to history. Create a new booking to restart the demo."
-          actionLabel="Book a ride"
-          onAction={() => router.replace('/(rider)/routes')}
+          title="This ride was cancelled"
+          body="The booking is available in your trip history."
+          actionLabel="Back to Home"
+          onAction={() => router.replace('/(rider)')}
         />
-        <AppButton label="View history" variant="secondary" onPress={() => router.push('/(rider)/history')} />
       </Screen>
     );
   }
-
-  const switchToDriver = () => {
-    continueAs('driver');
-    router.replace('/(driver)/request');
-  };
 
   return (
-    <Screen>
-      <Header eyebrow="Ride tracker" title="Follow your tricycle" subtitle="Rider view updates when the driver changes the same ride status." />
-      <SimulatedMap pickup={ride.pickup} destination={ride.destination} status={ride.status} />
-      <RideStatusCard ride={ride} perspective="rider" />
-      <Text style={[styles.hint, { color: theme.colors.mutedText }]}>
-        For the class demo, open driver view and advance the ride lifecycle.
-      </Text>
-      <AppButton label="Switch to Driver" variant="secondary" onPress={switchToDriver} />
+    <Screen scroll={false}>
+      <EmptyState
+        title="No active ride"
+        body="Completed trips move to your history. Browse verified routes to make a new booking."
+        actionLabel="Browse routes"
+        onAction={() => router.replace('/(rider)/routes')}
+      />
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  hint: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginVertical: 14,
-  },
-});

@@ -2,7 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { memo, ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii, spacing, typography } from '@/constants/theme';
+import { colors, iconSizes, radii, spacing, touchTargets, typography } from '@/constants/theme';
 import { TricycleIcon } from './TricycleIcon';
 
 type ListRowProps = { title: string; subtitle?: string; trailing?: ReactNode; onPress?: () => void; accessibilityLabel?: string };
@@ -10,12 +10,12 @@ type ListRowProps = { title: string; subtitle?: string; trailing?: ReactNode; on
 export const ListRow = memo(function ListRow({ title, subtitle, trailing, onPress, accessibilityLabel }: ListRowProps) {
   const content = (
     <>
-      <View style={styles.icon}><TricycleIcon size={25} color={colors.primary} /></View>
+      <View style={styles.icon}><TricycleIcon size={iconSizes.lg} color={colors.primary} /></View>
       <View style={styles.copy}>
         <Text style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
-      {trailing ?? (onPress ? <View style={styles.chevron}><Feather name="chevron-right" size={19} color={colors.primary} /></View> : null)}
+      {trailing ?? (onPress ? <View style={styles.chevron}><Feather name="chevron-right" size={iconSizes.md} color={colors.primary} /></View> : null)}
     </>
   );
 
@@ -34,5 +34,5 @@ const styles = StyleSheet.create({
   copy: { flex: 1 },
   title: { ...typography.bodySemibold, color: colors.text },
   subtitle: { ...typography.caption, color: colors.textMuted, marginTop: spacing.xs },
-  chevron: { width: 44, height: 44, borderRadius: radii.pill, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
+  chevron: { width: touchTargets.minimum, height: touchTargets.minimum, borderRadius: radii.pill, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
 });

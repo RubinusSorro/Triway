@@ -1,6 +1,8 @@
-import { ActivityIndicator, Pressable, StyleProp, StyleSheet, Text, ViewStyle } from 'react-native';
+import { StyleProp, ViewStyle } from 'react-native';
+import { ComponentProps } from 'react';
+import { Feather } from '@expo/vector-icons';
 
-import { colors, radii, spacing, typography } from '@/constants/theme';
+import { AppButton } from './AppButton';
 
 type PrimaryButtonProps = {
   label: string;
@@ -9,35 +11,9 @@ type PrimaryButtonProps = {
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
+  icon?: ComponentProps<typeof Feather>['name'];
 };
 
-export function PrimaryButton({ label, onPress, disabled, loading, style, accessibilityLabel }: PrimaryButtonProps) {
-  const isDisabled = disabled || loading;
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? label}
-      disabled={isDisabled}
-      android_ripple={{ color: colors.primarySoft }}
-      onPress={onPress}
-      style={({ pressed }) => [styles.button, pressed && styles.pressed, isDisabled && styles.disabled, style]}
-    >
-      {loading ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.label}>{label}</Text>}
-    </Pressable>
-  );
+export function PrimaryButton({ label, onPress, disabled, loading, style, accessibilityLabel, icon }: PrimaryButtonProps) {
+  return <AppButton label={label} onPress={onPress} disabled={disabled} loading={loading} style={style} accessibilityLabel={accessibilityLabel} icon={icon} />;
 }
-
-const styles = StyleSheet.create({
-  button: {
-    minHeight: 52,
-    borderRadius: radii.button,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
-    overflow: 'hidden',
-  },
-  pressed: { backgroundColor: colors.primaryDark, transform: [{ scale: 0.99 }] },
-  disabled: { opacity: 0.45 },
-  label: { ...typography.button, color: colors.onPrimary },
-});

@@ -3,22 +3,24 @@ import { useCallback, useEffect, useState } from 'react';
 import { rideService } from '@/features/rides/services/rideService';
 import { Ride } from '@/features/rides/types/ride';
 
-export function useRideHistory(riderId?: string) {
+type RideHistoryRole = 'rider' | 'driver';
+
+export function useRideHistory(userId?: string, role: RideHistoryRole = 'rider') {
   const [rides, setRides] = useState<Ride[]>([]);
-  const [isLoading, setIsLoading] = useState(Boolean(riderId));
+  const [isLoading, setIsLoading] = useState(Boolean(userId));
 
   const refresh = useCallback(async () => {
-    if (!riderId) {
+    if (!userId) {
       setRides([]);
       setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
-    const history = await rideService.listRideHistory(riderId);
+    const history = role === 'driver' ? await rideService.listDriverRideHistory(userId) : await rideService.listRideHistory(userId);
     setRides(history);
     setIsLoading(false);
-  }, [riderId]);
+  }, [role, userId]);
 
   useEffect(() => {
     void refresh();

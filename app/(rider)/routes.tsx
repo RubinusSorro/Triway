@@ -1,53 +1,36 @@
-import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useCallback } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { Screen } from '@/components/layout/Screen';
-import { ListRow } from '@/components/ui/ListRow';
-import { ScreenHeader } from '@/components/ui/ScreenHeader';
-import { SERVICE_AREA_CITY_NAME, SERVICE_AREA_SHORT_LABEL } from '@/constants/config';
-import { colors, spacing, typography } from '@/constants/theme';
 import { EmptyState } from '@/components/common/EmptyState';
+import { Header } from '@/components/layout/Header';
+import { Screen } from '@/components/layout/Screen';
+import { AppButton } from '@/components/ui/AppButton';
+import { colors, spacing } from '@/constants/theme';
+import { RouteCard } from '@/features/routes/components/RouteCard';
 import { useRoutes } from '@/features/routes/hooks/useRoutes';
-import { TriwayRoute } from '@/features/routes/types/route';
 
 export default function RiderRoutesScreen() {
+  const params = useLocalSearchParams<{ pickup?: string; destination?: string }>();
   const { routes, isLoading, error } = useRoutes();
-  const renderRoute = useCallback(({ item }: { item: TriwayRoute }) => (
-    <ListRow title={item.name} subtitle={SERVICE_AREA_SHORT_LABEL} onPress={() => router.push({ pathname: '/(rider)/booking', params: { routeId: item.id } })} />
-  ), []);
+  const selectedDestination = params.destination?.trim();
+  const availableRoutes = selectedDestination
+    ? routes.filter((route) => route.destination.toLocaleLowerCase() === selectedDestination.toLocaleLowerCase())
+    : routes;
 
   return (
-    <Screen scroll={false}>
-      <ScreenHeader showBack />
-      <View style={styles.heading}>
-        <Feather name="tag" size={20} color={colors.primary} />
-        <Text accessibilityRole="header" style={styles.headingText}>Choose one of the {SERVICE_AREA_CITY_NAME} Tricycle routes</Text>
+    <Screen includeTabBarPadding>
+      <Header eyebrow="Fixture routes" title={selectedDestination ? `Routes to ${selectedDestination}` : 'Choose a route'} subtitle="Sample routes and fares for the TRIWAY classroom demo." />
+      <AppButton label="Search a destination" variant="outline" onPress={() => router.push('/(rider)/search')} />
+      <View style={styles.list}>
+        {isLoading ? <ActivityIndicator style={styles.loader} color={colors.primary} /> : null}
+        {!isLoading && error ? <EmptyState title="Routes unavailable" body={error} /> : null}
+        {!isLoading && !error && availableRoutes.length === 0 ? <EmptyState title="No matching routes" body={selectedDestination ? `No fixture route ends at ${selectedDestination}.` : 'No route fixtures are available.'} actionLabel="Search again" onAction={() => router.push('/(rider)/search')} /> : null}
+        {!isLoading && !error ? availableRoutes.map((route) => (
+          <RouteCard key={route.id} route={route} onPress={() => router.push({ pathname: '/(rider)/booking', params: { routeId: route.id, pickup: params.pickup, destination: params.destination } })} />
+        )) : null}
       </View>
-      {isLoading ? <ActivityIndicator style={styles.loader} color={colors.primary} /> : (
-        <FlatList
-          data={routes}
-          style={styles.listView}
-          renderItem={renderRoute}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          ItemSeparatorComponent={Separator}
-          showsVerticalScrollIndicator={false}
-          ListEmptyComponent={<EmptyState title={error ? 'Routes unavailable' : `No routes available in ${SERVICE_AREA_CITY_NAME} yet`} body={error ?? 'Verified routes will appear here when available.'} />}
-        />
-      )}
     </Screen>
   );
 }
 
-function Separator() { return <View style={styles.separator} />; }
-
-const styles = StyleSheet.create({
-  heading: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm, marginBottom: spacing.lg },
-  headingText: { ...typography.sectionTitle, flex: 1, color: colors.text },
-  listView: { flex: 1 },
-  list: { flexGrow: 1, paddingBottom: spacing.xxl },
-  separator: { height: spacing.sm },
-  loader: { marginTop: spacing.xxxl },
-});
+const styles = StyleSheet.create({ list: { gap: spacing.md, marginTop: spacing.lg }, loader: { marginVertical: spacing.xxxl } });

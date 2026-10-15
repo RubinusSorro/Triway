@@ -14,6 +14,7 @@ const driverPositionByStatus: Record<RideStatus, DimensionValue> = {
   accepted: '28%',
   arriving: '46%',
   ongoing: '68%',
+  waiting_return: '78%',
   completed: '88%',
   cancelled: '12%',
 };

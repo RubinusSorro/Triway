@@ -1,23 +1,28 @@
 import { Platform, TextStyle, ViewStyle } from 'react-native';
 
 export const colors = {
-  primary: '#1F5C2E',
-  primaryDark: '#164A24',
-  tint: '#E9F1E7',
-  tintRow: '#EEF2EC',
+  primary: '#064E3B',
+  secondary: '#147D64',
+  primaryDark: '#043D2E',
+  tint: '#CFE5CF',
+  background: '#F0F7F3',
+  tintRow: '#E5F0E7',
   surface: '#FFFFFF',
-  text: '#111827',
+  text: '#111111',
   textMuted: '#6B7280',
   onPrimary: '#FFFFFF',
-  border: '#E5E7EB',
-  danger: '#B42318',
-  warning: '#B54708',
-  info: '#2563EB',
+  border: '#D5E3DA',
+  danger: '#C0392B',
+  warning: '#B45309',
+  disabled: '#9CA3AF',
+  disabledBackground: '#E5E7EB',
+  warningSoft: '#FDEBD0',
+  info: '#1D4ED8',
   transparent: 'transparent',
-  overlay: 'rgba(8, 20, 11, 0.70)',
-  overlayClear: 'rgba(8, 20, 11, 0)',
-  primarySoft: 'rgba(31, 92, 46, 0.12)',
-  skyline: 'rgba(22, 74, 36, 0.72)',
+  overlay: 'rgba(17, 17, 17, 0.50)',
+  overlayClear: 'rgba(6, 78, 59, 0)',
+  primarySoft: 'rgba(6, 78, 59, 0.12)',
+  skyline: 'rgba(4, 61, 46, 0.72)',
 } as const;
 
 export const spacing = {
@@ -28,13 +33,29 @@ export const spacing = {
   xl: 20,
   xxl: 24,
   xxxl: 32,
+  xxxxl: 40,
+  xxxxxl: 48,
 } as const;
 
 export const radii = {
-  card: 18,
+  sm: 8,
+  card: 16,
   input: 12,
   button: 12,
+  lg: 20,
   pill: 999,
+} as const;
+
+export const iconSizes = {
+  sm: 16,
+  md: 20,
+  lg: 24,
+  xl: 32,
+} as const;
+
+export const touchTargets = {
+  minimum: 44,
+  comfortable: 48,
 } as const;
 
 export const fontFamilies = {
@@ -44,16 +65,21 @@ export const fontFamilies = {
 } as const;
 
 export const typography = {
-  wordmark: { fontFamily: fontFamilies.extraBold, fontSize: 44, lineHeight: 52, letterSpacing: 1 },
-  display: { fontFamily: fontFamilies.extraBold, fontSize: 38, lineHeight: 44 },
-  title: { fontFamily: fontFamilies.semibold, fontSize: 24, lineHeight: 30 },
-  sectionTitle: { fontFamily: fontFamilies.semibold, fontSize: 17, lineHeight: 22 },
-  body: { fontFamily: fontFamilies.regular, fontSize: 15, lineHeight: 22 },
-  bodySemibold: { fontFamily: fontFamilies.semibold, fontSize: 15, lineHeight: 22 },
-  subtitle: { fontFamily: fontFamilies.regular, fontSize: 13, lineHeight: 18 },
-  caption: { fontFamily: fontFamilies.regular, fontSize: 12, lineHeight: 16 },
-  captionSemibold: { fontFamily: fontFamilies.semibold, fontSize: 12, lineHeight: 16 },
-  button: { fontFamily: fontFamilies.semibold, fontSize: 16, lineHeight: 20 },
+  wordmark: { fontFamily: fontFamilies.extraBold, fontSize: 44, fontWeight: '800', lineHeight: 52, letterSpacing: 1 },
+  display: { fontFamily: fontFamilies.extraBold, fontSize: 38, fontWeight: '800', lineHeight: 44 },
+  screenTitle: { fontFamily: fontFamilies.semibold, fontSize: 24, fontWeight: '600', lineHeight: 30 },
+  sectionHeading: { fontFamily: fontFamilies.semibold, fontSize: 17, fontWeight: '600', lineHeight: 22 },
+  body: { fontFamily: fontFamilies.regular, fontSize: 15, fontWeight: '400', lineHeight: 22 },
+  secondaryBody: { fontFamily: fontFamilies.regular, fontSize: 13, fontWeight: '400', lineHeight: 18 },
+  label: { fontFamily: fontFamilies.semibold, fontSize: 12, fontWeight: '600', lineHeight: 16 },
+  caption: { fontFamily: fontFamilies.regular, fontSize: 12, fontWeight: '400', lineHeight: 16 },
+  button: { fontFamily: fontFamilies.semibold, fontSize: 16, fontWeight: '600', lineHeight: 20 },
+  // Compatibility aliases for established screen and component imports.
+  title: { fontFamily: fontFamilies.semibold, fontSize: 24, fontWeight: '600', lineHeight: 30 },
+  sectionTitle: { fontFamily: fontFamilies.semibold, fontSize: 17, fontWeight: '600', lineHeight: 22 },
+  bodySemibold: { fontFamily: fontFamilies.semibold, fontSize: 15, fontWeight: '600', lineHeight: 22 },
+  subtitle: { fontFamily: fontFamilies.regular, fontSize: 13, fontWeight: '400', lineHeight: 18 },
+  captionSemibold: { fontFamily: fontFamilies.semibold, fontSize: 12, fontWeight: '600', lineHeight: 16 },
 } satisfies Record<string, TextStyle>;
 
 export const shadows = {
@@ -72,6 +98,21 @@ export const shadows = {
       shadowOffset: { width: 0, height: 4 },
     },
   }) ?? {},
+  floating: Platform.select<ViewStyle>({
+    ios: {
+      shadowColor: colors.text,
+      shadowOpacity: 0.12,
+      shadowRadius: 20,
+      shadowOffset: { width: 0, height: 8 },
+    },
+    android: { elevation: 5 },
+    default: {
+      shadowColor: colors.text,
+      shadowOpacity: 0.12,
+      shadowRadius: 20,
+      shadowOffset: { width: 0, height: 8 },
+    },
+  }) ?? {},
 } as const;
 
 export type AppTheme = {
@@ -80,6 +121,7 @@ export type AppTheme = {
     surface: string;
     elevated: string;
     primary: string;
+    secondary: string;
     primaryDark: string;
     tint: string;
     tintRow: string;
@@ -98,10 +140,11 @@ export type AppTheme = {
 
 export const lightTheme: AppTheme = {
   colors: {
-    background: colors.tint,
+    background: colors.background,
     surface: colors.surface,
     elevated: colors.tintRow,
     primary: colors.primary,
+    secondary: colors.secondary,
     primaryDark: colors.primaryDark,
     tint: colors.tint,
     tintRow: colors.tintRow,
@@ -118,5 +161,5 @@ export const lightTheme: AppTheme = {
   radius: { sm: radii.input, md: radii.button, lg: radii.card },
 };
 
-// The visual system is intentionally light-only; this alias keeps legacy callers stable.
+// Compatibility alias. TRIWAY intentionally ships no dark theme in this prototype.
 export const darkTheme = lightTheme;
