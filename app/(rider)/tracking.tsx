@@ -10,21 +10,23 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import { RiderCancellationControl } from '@/features/rides/components/RiderCancellationControl';
 import { RiderLifecycleGuard } from '@/features/rides/components/RiderLifecycleGuard';
 import { RideStatusCard } from '@/features/rides/components/RideStatusCard';
-import { SimulatedMap } from '@/features/rides/components/SimulatedMap';
+import { TriwayMap } from '@/features/maps/components/TriwayMap';
+import { useRideSimulation } from '@/features/maps/hooks/useRideSimulation';
 import { Ride } from '@/features/rides/types/ride';
 import { getRideLeg } from '@/features/rides/utils/rideLeg';
 
 function TrackingContent({ ride }: { ride: Ride }) {
   const { continueAs } = useAuth();
   const leg = getRideLeg(ride);
+  const sim = useRideSimulation(ride);
 
   return (
     <Screen scroll={false} includeTabBarPadding contentContainerStyle={styles.screen}>
       <ScreenHeader title="Driver on the way" showActions={false} />
       <ScrollView style={styles.form} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <SimulatedMap pickup={leg.pickup} destination={leg.destination} status={ride.status} />
+        <TriwayMap sim={sim} pickup={leg.pickup} destination={leg.destination} status={ride.status} />
         <Text style={styles.disclaimer}>Simulated movement and ETA for the demo; not live GPS.</Text>
-        <Card variant="tinted"><Text style={styles.eta}>Arriving in about 4 minutes</Text><Text style={styles.etaCopy}>Demo estimate based on the current simulated ride stage.</Text></Card>
+        <Card variant="tinted"><Text style={styles.eta}>{sim.headline}</Text><Text style={styles.etaCopy}>{sim.subline}</Text></Card>
         <RideStatusCard ride={ride} perspective="rider" />
       </ScrollView>
       <View style={styles.actions}>

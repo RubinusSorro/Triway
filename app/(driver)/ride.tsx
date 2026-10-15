@@ -9,12 +9,26 @@ import { AppButton } from '@/components/ui/AppButton';
 import { CancellationDialog, DRIVER_CANCELLATION_REASONS } from '@/components/ui/CancellationDialog';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useDriverRide } from '@/features/driver/hooks/useDriverRide';
+import { TriwayMap } from '@/features/maps/components/TriwayMap';
+import { useRideSimulation } from '@/features/maps/hooks/useRideSimulation';
 import { useCancelRide } from '@/features/rides/hooks/useCancelRide';
 import { RideStatusCard } from '@/features/rides/components/RideStatusCard';
-import { SimulatedMap } from '@/features/rides/components/SimulatedMap';
-import { CancellationReason, RideStatus } from '@/features/rides/types/ride';
+import { CancellationReason, Ride, RideStatus } from '@/features/rides/types/ride';
 import { getRideLeg } from '@/features/rides/utils/rideLeg';
 import { useAppTheme } from '@/hooks/useAppTheme';
+
+function DriverTripMap({ ride }: { ride: Ride }) {
+  const { theme } = useAppTheme();
+  const sim = useRideSimulation(ride);
+  const leg = getRideLeg(ride);
+  return (
+    <>
+      <TriwayMap sim={sim} pickup={leg.pickup} destination={leg.destination} status={ride.status} />
+      <Text style={{ fontSize: 16, fontWeight: '700', color: theme.colors.text }}>{sim.headline}</Text>
+      <Text style={{ fontSize: 12, color: theme.colors.mutedText, marginBottom: 8 }}>{sim.subline}</Text>
+    </>
+  );
+}
 
 export default function DriverRideScreen() {
   const { theme } = useAppTheme();
@@ -85,7 +99,7 @@ export default function DriverRideScreen() {
   return (
     <Screen>
       <Header eyebrow={activeRide.status === 'waiting_return' ? 'Quick Return' : activeRide.currentLeg === 'return' ? 'Return Trip' : 'Driver controls'} title={activeRide.status === 'waiting_return' ? 'Waiting for Rider' : 'Advance the trip'} subtitle={activeRide.status === 'waiting_return' ? `Return destination: ${activeRide.pickup}` : 'Each button updates the shared ride for the rider screen.'} />
-      {activeRide.status !== 'waiting_return' ? <SimulatedMap pickup={getRideLeg(activeRide).pickup} destination={getRideLeg(activeRide).destination} status={activeRide.status} /> : null}
+      {activeRide.status !== 'waiting_return' ? <DriverTripMap ride={activeRide} /> : null}
       <RideStatusCard ride={activeRide} perspective="driver" />
       {error ? <Text style={[styles.error, { color: theme.colors.danger }]}>{error}</Text> : null}
 

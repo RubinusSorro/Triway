@@ -11,7 +11,8 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import { RiderCancellationControl } from '@/features/rides/components/RiderCancellationControl';
 import { RiderLifecycleGuard } from '@/features/rides/components/RiderLifecycleGuard';
 import { RideStatusCard } from '@/features/rides/components/RideStatusCard';
-import { SimulatedMap } from '@/features/rides/components/SimulatedMap';
+import { TriwayMap } from '@/features/maps/components/TriwayMap';
+import { useRideSimulation } from '@/features/maps/hooks/useRideSimulation';
 import { rideService } from '@/features/rides/services/rideService';
 import { Ride } from '@/features/rides/types/ride';
 import { getRideLeg } from '@/features/rides/utils/rideLeg';
@@ -21,6 +22,7 @@ function ProgressContent({ ride }: { ride: Ride }) {
   const [isStartingReturn, setIsStartingReturn] = useState(false);
   const [returnError, setReturnError] = useState<string | null>(null);
   const leg = getRideLeg(ride);
+  const sim = useRideSimulation(ride);
   const isWaitingReturn = ride.isReturnRide && ride.status === 'waiting_return';
 
   const startReturn = async () => {
@@ -39,8 +41,9 @@ function ProgressContent({ ride }: { ride: Ride }) {
     <Screen scroll={false} includeTabBarPadding contentContainerStyle={styles.screen}>
       <ScreenHeader title={isWaitingReturn ? 'Ready to return' : leg.isReturnLeg ? 'Return trip' : 'Ride in progress'} showActions={false} />
       <ScrollView style={styles.form} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {!isWaitingReturn ? <SimulatedMap pickup={leg.pickup} destination={leg.destination} status={ride.status} /> : null}
+        {!isWaitingReturn ? <TriwayMap sim={sim} pickup={leg.pickup} destination={leg.destination} status={ride.status} /> : null}
         {!isWaitingReturn ? <Text style={styles.disclaimer}>Simulated movement for the demo; not live GPS.</Text> : null}
+        {!isWaitingReturn ? <Card variant="tinted"><Text style={styles.eta}>{sim.headline}</Text><Text style={styles.etaCopy}>{sim.subline}</Text></Card> : null}
         <Card variant={isWaitingReturn ? 'tinted' : 'outlined'} style={styles.legCard}>
           <Text style={styles.legLabel}>{ride.isReturnRide ? (leg.isReturnLeg ? 'LEG 2 OF 2 · RETURN' : 'LEG 1 OF 2 · OUTBOUND') : 'ONE-WAY TRIP'}</Text>
           <Text style={styles.legRoute}>{leg.pickup} to {leg.destination}</Text>
@@ -68,6 +71,8 @@ const styles = StyleSheet.create({
   form: { flex: 1 },
   content: { flexGrow: 1, gap: spacing.md, paddingBottom: spacing.xl },
   disclaimer: { ...typography.caption, color: colors.textMuted, marginTop: -spacing.sm },
+  eta: { ...typography.sectionHeading, color: colors.text },
+  etaCopy: { ...typography.secondaryBody, color: colors.textMuted, marginTop: spacing.xs },
   legCard: { gap: spacing.xs },
   legLabel: { ...typography.label, color: colors.secondary },
   legRoute: { ...typography.bodySemibold, color: colors.text },
