@@ -8,7 +8,6 @@
     "userInterfaceStyle": "light",
     "scheme": "triway",
     "experiments": {
-      "baseUrl": ""
     },
     "plugins": [
       "expo-router",
