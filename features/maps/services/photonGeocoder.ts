@@ -12,7 +12,7 @@ const BBOX = `${SERVICE_AREA.bounds.southWest.lng},${SERVICE_AREA.bounds.southWe
 const CENTER_LAT = SERVICE_AREA.center.lat;
 const CENTER_LNG = SERVICE_AREA.center.lng;
 
-export async function searchPlaces(query: string, signal?: AbortSignal, minChars: number = 1): Promise<PlaceResult[]> {
+export async function searchPlaces(query: string, signal?: AbortSignal, minChars: number = 3): Promise<PlaceResult[]> {
   const trimmed = query.trim();
   if (trimmed.length < minChars) return [];
 

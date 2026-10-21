@@ -1,6 +1,6 @@
 import { Camera, GeoJSONSource, Layer, LngLatBounds, Map } from '@maplibre/maplibre-react-native';
 import { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '@/constants/theme';
 import { SimulatedMap } from '@/features/rides/components/SimulatedMap';
@@ -124,6 +124,7 @@ export function TriwayMap({ sim, pickup, destination, status = 'requested' }: Tr
           />
         </GeoJSONSource>
       </Map>
+      <Text pointerEvents="none" style={styles.attribution}>© OpenStreetMap contributors · OpenFreeMap</Text>
     </View>
   );
 }
@@ -136,5 +137,16 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  attribution: {
+    position: 'absolute',
+    right: 8,
+    bottom: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    fontSize: 10,
+    color: colors.textMuted,
   },
 });

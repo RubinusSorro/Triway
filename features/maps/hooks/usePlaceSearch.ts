@@ -8,7 +8,7 @@ export type UsePlaceSearchResult = {
   error: string | null;
 };
 
-export function usePlaceSearch(query: string, minChars: number = 1): UsePlaceSearchResult {
+export function usePlaceSearch(query: string, minChars: number = 3): UsePlaceSearchResult {
   const [places, setPlaces] = useState<PlaceResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
